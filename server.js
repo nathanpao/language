@@ -2,6 +2,9 @@ const path = require('path');
 const http = require('http');
 const express = require('express');
 const socketio = require('socket.io')
+const formatMessage = require('./utils/messages');
+const { userJoin, getCurrentUser, userLeave, getRoomUsers } = require('./utils/users');
+
 
 const app = express();
 const server = http.createServer(app);
@@ -10,18 +13,44 @@ const io = socketio(server);
 //open redirect routes to rooms
 app.use(express.static(path.join(__dirname, 'public')));
 
+const botName = 'Admin';
+
 //indicate connections
 io.on('connection', socket => {
-  console.log('New connection...')
+  socket.on('joinRoom', ({ username, room }) => {
+    const user = userJoin(socket.id, username, room);
 
-  socket.emit('message', 'Start your Seedling.');
+    socket.join(user.room);
 
-  //user connects
-  socket.broadcast.emit('message', 'User joined');
+    socket.emit('message', formatMessage(botName, 'Start your Seedling.'));
+
+    //user connects
+    socket.broadcast.to(user.room).emit('message', formatMessage(botName, `${user.username} joined`));
+
+    io.to(user.room).emit('roomUsers', {
+      room: user.room,
+      users: getRoomUsers(user.room),
+    });
+  });
+
+  socket.on('chatMessage', (msg) => {
+    const user = getCurrentUser(socket.id);
+
+    io.to(user.room).emit('message', formatMessage(`${user.username}`, msg));
+  });
 
   //user disconnects
   socket.on('disconnect', () => {
-    io.emit('message', 'User left')
+    const user = userLeave(socket.id);
+
+    if(user) {
+      io.to(user.room).emit('message', formatMessage(botName, `${user.username} left`));
+    }
+
+    io.to(user.room).emit('roomUsers', {
+      room: user.room,
+      users: getRoomUsers(user.room),
+    });
   });
 });
 
