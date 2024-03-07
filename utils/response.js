@@ -12,10 +12,13 @@ async function botResponse(msg, room) {
   The message is "${msg}". 
   Provide English-to-${room} translations 
   for all English words in the message. For all English words, provide a 
-  full definition of the word in ${room}.`);
+  short definition of the word in ${room}.`);
   const response = await result.response;
-  const stringResponse = response.text();
-  return JSON.stringify(stringResponse)
+  let stringResponse = JSON.stringify(response.text()).slice(1, -1);
+  console.log(stringResponse);
+  stringResponse = stringResponse.replace(/\\n/g,'<br />');
+  stringResponse = stringResponse.replace(/\\|\*/g, '');
+  return stringResponse;
 }
 
 module.exports = botResponse;

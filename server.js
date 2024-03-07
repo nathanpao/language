@@ -14,7 +14,7 @@ const io = socketio(server);
 //open redirect routes to rooms
 app.use(express.static(path.join(__dirname)));
 
-const botName = 'Admin';
+const botName = 'Lingo';
 
 
 //indicate connections
