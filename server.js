@@ -16,22 +16,6 @@ app.use(express.static(path.join(__dirname)));
 
 const botName = 'Admin';
 
-/*
-const OpenAIApi = require('openai');
-const openai = new OpenAIApi({
-  api_key: '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'
-});
-
-const botResponse = async(msg) => {
-  chatCompletion = await openai.chat.completions.create({
-  model: "gpt-3-turbo",
-  messages: [{"role": "user", "content": "Hello!"}],
-  });
-  console.log(chatCompletion.choices[0].message);
-  //io.to(user.room).emit('message', formatMessage(botName, text));
-}
-*/
-
 
 //indicate connections
 io.on('connection', socket => {
